@@ -1,13 +1,49 @@
 import { useState } from 'react';
 import { roadmaps, Roadmap } from '../data/roadmapsData';
 import { Link } from 'react-router-dom';
-import { Layout, Server, Layers, Smartphone, ArrowRight, Bookmark, BookmarkCheck, Search } from 'lucide-react';
+import { Layout, Server, Layers, Smartphone, ArrowRight, Bookmark, BookmarkCheck, Search, Plus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import AddRoadmap from '../components/roadmap/AddRoadmap';
 
 const RoadmapsPage = () => {
   const { isAuthenticated } = useAuth();
   const [savedRoadmaps, setSavedRoadmaps] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showAddRoadmapModal, setShowAddRoadmapModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordEntered, setPasswordEntered] = useState(false);
+
+  const handleAddRoadmap = async (newRoadmap: {
+    title: string;
+    description: string;
+    icon: string;
+    steps: {
+      title: string;
+      description: string;
+      resources: {
+        title: string;
+        url: string;
+        type: 'article' | 'video' | 'course' | 'book';
+      }[];
+    }[];
+  }) => {
+    // TODO: Implement API call to add roadmap
+    alert('Roadmap added successfully!');
+    setShowAddRoadmapModal(false);
+    setPassword('');
+    setPasswordEntered(false);
+  };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === 'virus@123') {
+      setPasswordEntered(true);
+      setPasswordError('');
+    } else {
+      setPasswordError('Incorrect password');
+    }
+  };
 
   const getIconComponent = (iconName: string) => {
     const iconProps = "h-8 w-8";
@@ -86,6 +122,17 @@ const RoadmapsPage = () => {
                 className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-lg transition-all duration-200"
               />
             </div>
+          </div>
+
+          {/* Add Roadmap Button */}
+          <div className="mb-6 flex justify-end">
+            <button
+              onClick={() => setShowAddRoadmapModal(true)}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add New Roadmap</span>
+            </button>
           </div>
 
           {/* Roadmaps Grid */}
@@ -174,6 +221,61 @@ const RoadmapsPage = () => {
           )}
         </div>
       </div>
+
+      {/* Password Modal */}
+      {showAddRoadmapModal && !passwordEntered && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Enter Admin Password
+            </h3>
+            <form onSubmit={handlePasswordSubmit}>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+                className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
+                required
+              />
+              {passwordError && (
+                <p className="text-red-500 text-sm mb-4">{passwordError}</p>
+              )}
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddRoadmapModal(false);
+                    setPassword('');
+                    setPasswordError('');
+                  }}
+                  className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Roadmap Modal */}
+      {showAddRoadmapModal && passwordEntered && (
+        <AddRoadmap
+          onAdd={handleAddRoadmap}
+          onCancel={() => {
+            setShowAddRoadmapModal(false);
+            setPassword('');
+            setPasswordEntered(false);
+          }}
+        />
+      )}
     </div>
   );
 };

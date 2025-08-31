@@ -17,4 +17,25 @@ router.get('/:id', (req, res) => {
   res.json(path);
 });
 
+router.post('/', (req, res) => {
+  const { name, roadmapId, skills, education, jobOutlook, relatedJobs } = req.body;
+
+  if (!name || !roadmapId) {
+    return res.status(400).json({ message: 'Name and roadmapId are required' });
+  }
+
+  const newCareerPath = {
+    id: (careerPaths.length + 1).toString(),
+    name,
+    roadmapId,
+    skills,
+    education,
+    jobOutlook,
+    relatedJobs
+  };
+
+  careerPaths.push(newCareerPath);
+  res.status(201).json(newCareerPath);
+});
+
 export default router;

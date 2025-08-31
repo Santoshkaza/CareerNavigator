@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { careerPaths, CareerPath } from '../data/careerPathsData';
-import { Layout, Server, Layers, Smartphone, GitMerge, BarChart, Cloud, Shield, ArrowRight, Search, TrendingUp } from 'lucide-react';
+import { Layout, Server, Layers, Smartphone, GitMerge, BarChart, Cloud, Shield, ArrowRight, Search, TrendingUp, Plus } from 'lucide-react';
+import AddCareerPath from '../components/career/AddCareerPath';
+import { apiService } from '../services/apiService';
 
 const CareerPathsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [demandFilter, setDemandFilter] = useState<string>('all');
+  const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
+  const [showAddCareerPathModal, setShowAddCareerPathModal] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>('');
+  const [passwordError, setPasswordError] = useState<string>('');
 
   const getIconComponent = (iconName: string) => {
     switch (iconName) {
@@ -27,6 +33,35 @@ const CareerPathsPage: React.FC = () => {
         return <Shield className="h-8 w-8" />;
       default:
         return <Layout className="h-8 w-8" />;
+    }
+  };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === 'virus@123') {
+      setShowPasswordModal(false);
+      setShowAddCareerPathModal(true);
+      setPassword('');
+      setPasswordError('');
+    } else {
+      setPasswordError('Incorrect password');
+    }
+  };
+
+  const handleAddCareerPath = async (newCareerPath: {
+    name: string;
+    roadmapId: string;
+    skills: string;
+    education: string;
+    jobOutlook: string;
+    relatedJobs: string;
+  }) => {
+    try {
+      await apiService.createCareerPath(newCareerPath);
+      alert('Career path added successfully!');
+      setShowAddCareerPathModal(false);
+    } catch (error: any) {
+      alert('Failed to add career path: ' + error.message);
     }
   };
 
@@ -121,6 +156,17 @@ const CareerPathsPage: React.FC = () => {
                 </select>
               </div>
             </div>
+          </div>
+
+          {/* Add Career Path Button */}
+          <div className="mb-6 flex justify-end">
+            <button
+              onClick={() => setShowPasswordModal(true)}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add Career Path</span>
+            </button>
           </div>
 
           {/* Career Paths Grid */}
@@ -228,6 +274,57 @@ const CareerPathsPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Password Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Enter Admin Password
+            </h3>
+            <form onSubmit={handlePasswordSubmit}>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+                className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
+                required
+              />
+              {passwordError && (
+                <p className="text-red-500 text-sm mb-4">{passwordError}</p>
+              )}
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPasswordModal(false);
+                    setPassword('');
+                    setPasswordError('');
+                  }}
+                  className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Career Path Modal */}
+      {showAddCareerPathModal && (
+        <AddCareerPath
+          onAdd={handleAddCareerPath}
+          onCancel={() => setShowAddCareerPathModal(false)}
+        />
+      )}
     </div>
   );
 };

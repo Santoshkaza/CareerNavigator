@@ -150,6 +150,28 @@ class ApiService {
     return response.json();
   }
 
+  async createCareerPath(careerPathData: {
+    name: string;
+    roadmapId: string;
+    skills: string;
+    education: string;
+    jobOutlook: string;
+    relatedJobs: string;
+  }) {
+    const response = await fetch(`${API_BASE_URL}/career-paths`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(careerPathData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to create career path');
+    }
+
+    return response.json();
+  }
+
   // Progress
   async getUserProgress() {
     const response = await fetch(`${API_BASE_URL}/progress/dashboard`, {

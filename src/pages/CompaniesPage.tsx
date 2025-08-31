@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/apiService';
-import { Search, ExternalLink, Filter, Building2, AlertCircle } from 'lucide-react';
+import { Search, ExternalLink, Filter, Building2, AlertCircle, Plus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 type CompanyQuestion = {
@@ -31,6 +31,26 @@ const CompaniesPage: React.FC = () => {
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showCompanyPasswordModal, setShowCompanyPasswordModal] = useState(false);
+  const [showAddQuestionModal, setShowAddQuestionModal] = useState(false);
+  const [showAddCompanyModal, setShowAddCompanyModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [newQuestion, setNewQuestion] = useState({
+    id: '',
+    title: '',
+    description: '',
+    difficulty: 'easy' as 'easy' | 'medium' | 'hard',
+    category: '',
+    url: '',
+  });
+  const [newCompany, setNewCompany] = useState({
+    id: '',
+    name: '',
+    logo: '',
+    description: '',
+  });
 
   useEffect(() => {
     fetchCompanies();
@@ -76,6 +96,86 @@ const CompaniesPage: React.FC = () => {
       case 'hard': return 'text-red-600 bg-red-50 border-red-200';
       default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
+  };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === 'virus@123') {
+      setShowPasswordModal(false);
+      setShowAddQuestionModal(true);
+      setPassword('');
+      setPasswordError('');
+    } else {
+      setPasswordError('Incorrect password');
+    }
+  };
+
+  const handleAddQuestionSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // TODO: Implement API call to add question to company
+      alert('Question added successfully!');
+      setShowAddQuestionModal(false);
+      setNewQuestion({
+        id: '',
+        title: '',
+        description: '',
+        difficulty: 'easy',
+        category: '',
+        url: '',
+      });
+      // Refresh companies data
+      fetchCompanies();
+    } catch (error: any) {
+      alert('Failed to add question: ' + error.message);
+    }
+  };
+
+  const handleNewQuestionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setNewQuestion(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handlePasswordSubmitForCompany = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === 'virus@123') {
+      setShowCompanyPasswordModal(false);
+      setShowAddCompanyModal(true);
+      setPassword('');
+      setPasswordError('');
+    } else {
+      setPasswordError('Incorrect password');
+    }
+  };
+
+  const handleAddCompanySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // TODO: Implement API call to add new company
+      alert('Company added successfully!');
+      setShowAddCompanyModal(false);
+      setNewCompany({
+        id: '',
+        name: '',
+        logo: '',
+        description: '',
+      });
+      // Refresh companies data
+      fetchCompanies();
+    } catch (error: any) {
+      alert('Failed to add company: ' + error.message);
+    }
+  };
+
+  const handleNewCompanyChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setNewCompany(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   if (loading) {
@@ -133,17 +233,27 @@ const CompaniesPage: React.FC = () => {
 
           {/* Search Section */}
           <div className="mb-8">
-            <div className="relative max-w-md mx-auto">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+              <div className="relative max-w-md w-full">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search companies..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-lg transition-all duration-200"
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Search companies..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-lg transition-all duration-200"
-              />
+
+              <button
+                onClick={() => setShowCompanyPasswordModal(true)}
+                className="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2 transition-colors duration-200"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add Company</span>
+              </button>
             </div>
           </div>
 
@@ -237,8 +347,8 @@ const CompaniesPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Filters */}
-                <div className="mb-6">
+                {/* Filters and Add Button */}
+                <div className="mb-6 flex justify-between items-center">
                   <button
                     onClick={() => setShowFilters(!showFilters)}
                     className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
@@ -247,43 +357,51 @@ const CompaniesPage: React.FC = () => {
                     Filters
                   </button>
 
-                  {showFilters && (
-                    <div className="mt-4 p-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Difficulty
-                          </label>
-                          <select
-                            value={difficultyFilter}
-                            onChange={(e) => setDifficultyFilter(e.target.value)}
-                            className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                          >
-                            <option value="all">All Difficulties</option>
-                            <option value="easy">Easy</option>
-                            <option value="medium">Medium</option>
-                            <option value="hard">Hard</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Category
-                          </label>
-                          <select
-                            value={categoryFilter}
-                            onChange={(e) => setCategoryFilter(e.target.value)}
-                            className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                          >
-                            <option value="all">All Categories</option>
-                            {allCategories.map(category => (
-                              <option key={category} value={category}>{category}</option>
-                            ))}
-                          </select>
-                        </div>
+                  <button
+                    onClick={() => setShowPasswordModal(true)}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Add Interview Question</span>
+                  </button>
+                </div>
+
+                {showFilters && (
+                  <div className="mb-6 p-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Difficulty
+                        </label>
+                        <select
+                          value={difficultyFilter}
+                          onChange={(e) => setDifficultyFilter(e.target.value)}
+                          className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                          <option value="all">All Difficulties</option>
+                          <option value="easy">Easy</option>
+                          <option value="medium">Medium</option>
+                          <option value="hard">Hard</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Category
+                        </label>
+                        <select
+                          value={categoryFilter}
+                          onChange={(e) => setCategoryFilter(e.target.value)}
+                          className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                          <option value="all">All Categories</option>
+                          {allCategories.map(category => (
+                            <option key={category} value={category}>{category}</option>
+                          ))}
+                        </select>
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* Questions List */}
                 <div className="space-y-4">
@@ -359,6 +477,291 @@ const CompaniesPage: React.FC = () => {
                     Learn More
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Password Modal */}
+          {showPasswordModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Enter Password
+                </h3>
+                <form onSubmit={handlePasswordSubmit}>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter password"
+                    className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4"
+                    required
+                  />
+                  {passwordError && (
+                    <p className="text-red-500 text-sm mb-4">{passwordError}</p>
+                  )}
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowPasswordModal(false);
+                        setPassword('');
+                        setPasswordError('');
+                      }}
+                      className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Company Password Modal */}
+          {showCompanyPasswordModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Enter Password to Add Company
+                </h3>
+                <form onSubmit={handlePasswordSubmitForCompany}>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter password"
+                    className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4"
+                    required
+                  />
+                  {passwordError && (
+                    <p className="text-red-500 text-sm mb-4">{passwordError}</p>
+                  )}
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCompanyPasswordModal(false);
+                        setPassword('');
+                        setPasswordError('');
+                      }}
+                      className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Add Question Modal */}
+          {showAddQuestionModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Add Interview Question to {activeCompany?.name}
+                </h3>
+                <form onSubmit={handleAddQuestionSubmit}>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Question Title
+                      </label>
+                      <input
+                        type="text"
+                        name="title"
+                        value={newQuestion.title}
+                        onChange={handleNewQuestionChange}
+                        placeholder="Enter question title"
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Description
+                      </label>
+                      <textarea
+                        name="description"
+                        value={newQuestion.description}
+                        onChange={handleNewQuestionChange}
+                        placeholder="Enter question description"
+                        rows={4}
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Difficulty
+                        </label>
+                        <select
+                          name="difficulty"
+                          value={newQuestion.difficulty}
+                          onChange={handleNewQuestionChange}
+                          className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                          <option value="easy">Easy</option>
+                          <option value="medium">Medium</option>
+                          <option value="hard">Hard</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Category
+                        </label>
+                        <input
+                          type="text"
+                          name="category"
+                          value={newQuestion.category}
+                          onChange={handleNewQuestionChange}
+                          placeholder="e.g., Data Structures, Algorithms"
+                          className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        URL (Optional)
+                      </label>
+                      <input
+                        type="url"
+                        name="url"
+                        value={newQuestion.url}
+                        onChange={handleNewQuestionChange}
+                        placeholder="https://example.com/problem"
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end space-x-3 mt-6">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAddQuestionModal(false);
+                        setNewQuestion({
+                          id: '',
+                          title: '',
+                          description: '',
+                          difficulty: 'easy',
+                          category: '',
+                          url: '',
+                        });
+                      }}
+                      className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    >
+                      Add Question
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Add Company Modal */}
+          {showAddCompanyModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Add New Company
+                </h3>
+                <form onSubmit={handleAddCompanySubmit}>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Company Name
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={newCompany.name}
+                        onChange={handleNewCompanyChange}
+                        placeholder="Enter company name"
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Logo URL (Optional)
+                      </label>
+                      <input
+                        type="url"
+                        name="logo"
+                        value={newCompany.logo}
+                        onChange={handleNewCompanyChange}
+                        placeholder="https://example.com/logo.png"
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Description
+                      </label>
+                      <textarea
+                        name="description"
+                        value={newCompany.description}
+                        onChange={handleNewCompanyChange}
+                        placeholder="Enter company description"
+                        rows={4}
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end space-x-3 mt-6">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAddCompanyModal(false);
+                        setNewCompany({
+                          id: '',
+                          name: '',
+                          logo: '',
+                          description: '',
+                        });
+                      }}
+                      className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      Add Company
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           )}
