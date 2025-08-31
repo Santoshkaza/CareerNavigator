@@ -131,6 +131,61 @@ PORT=5000
 6. **DSA Practice**: Visit the DSA Sheets page to practice problems and track progress
 7. **Add Problems**: Use password "virus@123" to access the admin interface for adding new problems
 
+## 🚀 Quick Start Commands
+
+### 1. Install Dependencies
+```bash
+# Install all dependencies (frontend + backend)
+npm install
+cd server && npm install && cd ..
+```
+
+### 2. Start MongoDB
+```bash
+# Option A: Local MongoDB
+mongod
+
+# Option B: MongoDB Atlas (update server/.env)
+# MONGO_URI=mongodb+srv://your-connection-string
+```
+
+### 3. Seed Database (Optional but Recommended)
+```bash
+# Populate database with sample DSA problems
+cd server && node seed-dsa.js && cd ..
+```
+
+### 4. Start the Application
+
+#### Option A: Manual Start (Recommended for Development)
+```bash
+# Terminal 1 - Backend Server
+cd server && npm run dev
+
+# Terminal 2 - Frontend Server
+npm run dev
+```
+
+#### Option B: Quick Start Script (Windows)
+```bash
+# Start both servers automatically
+./start-mern.bat
+```
+
+#### Option C: Production Build
+```bash
+# Build frontend for production
+npm run build
+
+# Start backend in production mode
+cd server && npm start
+```
+
+### 5. Access the Application
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:5000
+- **DSA Sheets**: Navigate to DSA Sheets page after login
+
 ## 🔧 Available Scripts
 
 ### Frontend
@@ -141,6 +196,9 @@ PORT=5000
 ### Backend
 - `npm start` - Start production server
 - `npm run dev` - Start development server with nodemon
+
+### Database
+- `cd server && node seed-dsa.js` - Seed database with sample problems
 
 ## 🐛 Troubleshooting
 
