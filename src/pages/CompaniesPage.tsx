@@ -4,17 +4,17 @@ import { Search, ExternalLink, Filter, Building2, AlertCircle } from 'lucide-rea
 import { useAuth } from '../context/AuthContext';
 
 type CompanyQuestion = {
-  id: number;
+  id: string;
   title: string;
   description: string;
-  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+  difficulty: 'easy' | 'medium' | 'hard';
   category: string;
   url?: string;
   solution?: string;
 };
 
 type Company = {
-  id: number;
+  id: string;
   name: string;
   logo: string;
   description: string;
@@ -26,7 +26,7 @@ const CompaniesPage: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeCompanyId, setActiveCompanyId] = useState<number | null>(null);
+  const [activeCompanyId, setActiveCompanyId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -260,9 +260,9 @@ const CompaniesPage: React.FC = () => {
                             className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                           >
                             <option value="all">All Difficulties</option>
-                            <option value="EASY">Easy</option>
-                            <option value="MEDIUM">Medium</option>
-                            <option value="HARD">Hard</option>
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
                           </select>
                         </div>
                         <div>
